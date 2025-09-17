@@ -19,59 +19,57 @@ use crate::error::BibleLibError;
 
 pub mod error;
 
-#[cfg(akjv)]
+#[cfg(feature = "akjv")]
 const AKJV: &str = include_str!("..\\bible_translations\\akjv.txt");
-#[cfg(asv)]
+#[cfg(feature = "asv")]
 const ASV: &str = include_str!("..\\bible_translations\\asv.txt");
-#[cfg(erv)]
+#[cfg(feature = "erv")]
 const ERV: &str = include_str!("..\\bible_translations\\erv.txt");
-#[cfg(kjv)]
+#[cfg(feature = "kjv")]
 const KJV: &str = include_str!("..\\bible_translations\\kjv.txt");
 
 /// Different Bible Translations
-/// Translations provided by https://openbible.com/
+/// provided by https://openbible.com/
 /// https://openbible.com/texts.htm
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Translation {
     /// American King James Version
-    #[cfg(akjv)]
+    #[cfg(feature = "akjv")]
     AmericanKingJames,
     /// American Standard Version
-    #[cfg(asv)]
+    #[cfg(feature = "asv")]
     AmericanStandard,
     /// English Revised Version
-    #[cfg(erv)]
+    #[cfg(feature = "erv")]
     EnglishedRevised,
     /// King James Version
-    #[cfg(kjv)]
+    #[cfg(feature = "kjv")]
     KingJames,
     /// For custom translations,
-    /// each line must be a verse formatted as: `Chapter Chapter#:Verse# Content`
+    /// each line must be a verse formatted as: `Book Chapter:Verse Content`
     /// See bible_translations/ for examples
     /// 
     /// `name` is strictly for display purposes
     ///
     /// note: other translations are included in the binary at compile time,
     /// but custom translations are read from the filesystem at runtime
-    Custom {name: String, path: String}
+    Custom { name: String, path: String }
 }
 
 impl Translation {
+    #[doc(hidden)]
     fn get_text(&self) -> Result<String, BibleLibError> {
         match self {
-            #[cfg(akjv)]
+
             Self::AmericanKingJames => {
                 Ok(AKJV.to_string())
             }
-            #[cfg(asv)]
             Self::AmericanStandard => {
                 Ok(ASV.to_string())
             }
-            #[cfg(erv)]
             Self::EnglishedRevised => {
                 Ok(ERV.to_string())
             }
-            #[cfg(kjv)]
             Self::KingJames => {
                 Ok(KJV.to_string())
             }
@@ -92,21 +90,21 @@ impl Translation {
     }
 }
 
-#[cfg(any(akjv, asv, erv, kjv))]
+#[cfg(any(feature = "akjv", feature = "asv", feature = "erv", feature = "kjv"))]
 impl Default for Translation {
-    #[cfg(akjv)]
+    #[cfg(feature = "akjv")]
     fn default() -> Self {
         Self::AmericanKingJames
     }
-    #[cfg(all(not(akjv), asv))]
+    #[cfg(all(not(feature = "akjv"), feature = "asv"))]
     fn default() -> Self {
         Self::AmericanStandard
     }
-    #[cfg(all(not(akjv), not(asv), erv))]
+    #[cfg(all(not(feature = "akjv"), not(feature = "asv"), feature = "erv"))]
     fn default() -> Self {
         Self::EnglishedRevised
     }
-    #[cfg(all(not(akjv), not(asv), not(erv), kjv))]
+    #[cfg(all(not(feature = "akjv"), not(feature = "asv"), not(feature = "erv"), feature = "kjv"))]
     fn default() -> Self {
         Self::KingJames
     }
@@ -115,13 +113,13 @@ impl Default for Translation {
 impl Display for Translation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            #[cfg(akjv)]
+            #[cfg(feature = "akjv")]
             Self::AmericanKingJames => write!(f, "American King James Version"),
-            #[cfg(asv)]
+            #[cfg(feature = "asv")]
             Self::AmericanStandard => write!(f, "American Standard Version"),
-            #[cfg(erv)]
+            #[cfg(feature = "erv")]
             Self::EnglishedRevised => write!(f, "English Revised Version"),
-            #[cfg(kjv)]
+            #[cfg(feature = "kjv")]
             Self::KingJames => write!(f, "King James Version"),
             Self::Custom { name, .. } => write!(f, "Custom Translation: {}", name),
         }
@@ -129,7 +127,22 @@ impl Display for Translation {
 }
 
 /// Struct representing a Bible verse lookup
-/// `book` is not case sensitive
+/// `book` is not case-sensitive
+/// `thru_verse` is optional and used for verse ranges like `John 3:16-18`
+/// # Example
+/// ```
+/// use bible_lib::{Bible, BibleLookup, Translation};
+///
+/// // get the bible translation
+/// let bible = Bible::new(Translation::KingJames).unwrap();
+/// // create a lookup for John 3:16
+/// let lookup = BibleLookup::new("John", 3, 16);
+/// // get the verse text
+/// let verse = bible.get_verse(lookup, false).unwrap();
+///
+/// // print the verse text
+/// println!("John 3:16: {}", verse);
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BibleLookup {
     pub book: String,
@@ -139,7 +152,16 @@ pub struct BibleLookup {
 }
 
 impl BibleLookup {
-        pub fn new<S: Into<String>>(book: S, chapter: u32, verse: u32) -> Self {
+    /// Create a new BibleLookup instance (single verse)
+    /// `book` is not case-sensitive
+    /// # Example
+    /// ```
+    /// use bible_lib::BibleLookup;
+    ///
+    /// // create a lookup for John 3:16
+    /// let lookup = BibleLookup::new("John", 3, 16);
+    /// ```
+    pub fn new<S: Into<String>>(book: S, chapter: u32, verse: u32) -> Self {
         let book = book.into();
         let book = book.to_lowercase();
         Self {
@@ -150,6 +172,14 @@ impl BibleLookup {
         }
     }
 
+    /// Create a new BibleLookup instance (verse range)
+    /// # Example
+    /// ```
+    /// use bible_lib::BibleLookup;
+    ///
+    /// // create a lookup for Luke 23:39-43
+    /// let lookup = BibleLookup::new_range("Luke", 23, 39, 43);
+    /// ```
     pub fn new_range<S: Into<String>>(book: S, chapter: u32, verse: u32, thru_verse: u32) -> Self {
         let book = book.into();
         let book = book.to_lowercase();
@@ -164,11 +194,32 @@ impl BibleLookup {
     /// Detect Bible verses in a string
     /// Requires the `detection` feature to be enabled
     /// Can return multiple verses if more than one is found
+    /// # Example
+    /// ```
+    /// use bible_lib::{Bible, Translation, BibleLookup};
+    ///
+    /// // get the bible translation
+    /// let bible = Bible::new(Translation::default()).unwrap();
+    ///
+    /// // create the string to look for verses in
+    /// let text = "Show me John 3:16";
+    /// // detect verses in the string
+    /// let verses = BibleLookup::detect_from_string(text);
+    ///
+    /// // iterate through the found verses and print them
+    /// for verse in verses {
+    ///     // get the verse text
+    ///     let verse_text = bible.get_verse(verse.clone()).unwrap();
+    ///     // print the verse text
+    ///     println!("Found verse: {} - {}", verse, verse_text);
+    /// }
+    /// ```
     #[cfg(feature = "detection")]
     pub fn detect_from_string<S: Into<String>>(lookup: S) -> Vec<Self> {
         let mut verses = Vec::new();
 
-        let text = text.to_lowercase();
+        let lookup = lookup.into();
+        let text = lookup.to_lowercase();
 
         //let regex = regex::Regex::new(r"\b(?:genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\s?samuel|2\s?samuel|1\s?kings|2\s?kings|1\s?chronicles|2\s?chronicles|ezra|nehemiah|esther|job|psalms|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|matthew|mark|luke|john|acts|romans|1\s?corinthians|2\s?corinthians|galatians|ephesians|philippians|colossians|1\s?thessalonians|2\s?thessalonians|1\s?timothy|2\s?timothy|titus|philemon|hebrews|james|1\s?peter|2\s?peter|1\s?john|2\s?john|3\s?john|jude|revelation)\s+\d+:\d+\b").unwrap();
         let regex = regex::Regex::new(r"\b(?:genesis|exodus|leviticus|numbers|deuteronomy|joshua|judges|ruth|1\s?samuel|2\s?samuel|1\s?kings|2\s?kings|1\s?chronicles|2\s?chronicles|ezra|nehemiah|esther|job|psalms|proverbs|ecclesiastes|song\sof\ssolomon|isaiah|jeremiah|lamentations|ezekiel|daniel|hosea|joel|amos|obadiah|jonah|micah|nahum|habakkuk|zephaniah|haggai|zechariah|malachi|matthew|mark|luke|john|acts|romans|1\s?corinthians|2\s?corinthians|galatians|ephesians|philippians|colossians|1\s?thessalonians|2\s?thessalonians|1\s?timothy|2\s?timothy|titus|philemon|hebrews|james|1\s?peter|2\s?peter|1\s?john|2\s?john|3\s?john|jude|revelation)\s+\d+:\d+(?:-\d+)?\b").unwrap();
@@ -209,8 +260,9 @@ impl BibleLookup {
         verses
     }
 
-    // Capitalize the book for display
+    #[doc(hidden)]
     fn capitalize_book(name: &String) -> String {
+        // capitalize the first letter of each word in the book name
         // Split the input string by whitespace into words
         name.split_whitespace()
             // For each word, apply the following transformation
@@ -246,6 +298,24 @@ impl Display for BibleLookup {
     }
 }
 
+/// Main Bible struct
+/// Stores the verses of the Bible for interfacing
+/// # Example
+/// ```
+/// use bible_lib::{Bible, Translation, BibleLookup};
+///
+/// // get the bible translation
+/// let bible = Bible::new(Translation::AmericanStandard).unwrap();
+///
+/// // create a lookup for John 3:16
+/// let lookup = BibleLookup::new("John", 3, 16);
+/// // get the verse text
+/// let verse = bible.get_verse(lookup, false).unwrap();
+///
+/// // print the verse text
+/// println!("John 3:16: {}", verse);
+/// ```
+#[derive(Debug, Clone)]
 pub struct Bible {
     translation: Translation,
     pub verses: HashMap<String /* Book */,
@@ -255,6 +325,7 @@ pub struct Bible {
 
 impl Bible {
 
+    #[doc(hidden)]
     fn parse_text(lines: &String) -> HashMap<String, HashMap<u32, HashMap<u32, String>>> {
         let mut verses = HashMap::new();
 
@@ -293,10 +364,12 @@ impl Bible {
         })
     }
 
+    /// Get the current translation of the Bible instance
     pub fn get_translation(&self) -> &Translation {
         &self.translation
     }
 
+    #[doc(hidden)]
     fn replace_superscript(s: String) -> String {
         s.chars().map(|c| {
             match c {
@@ -316,8 +389,23 @@ impl Bible {
     }
 
     /// Get the text of a verse or range of verses
+    /// `use_superscripts` adds superscript verse numbers for better readability
     /// Returns an error if the verse or chapter is not found
-    pub fn get_verse(&self, lookup: BibleLookup) -> Result<String, BibleLibError> {
+    /// # Example
+    /// ```
+    /// use bible_lib::{Bible, BibleLookup, Translation};
+    ///
+    /// // get the bible translation
+    /// let bible = Bible::new(Translation::AmericanStandard).unwrap();
+    /// // create a lookup for John 3:16
+    /// let lookup = BibleLookup::new("John", 3, 16);
+    /// // get the verse text
+    /// let verse = bible.get_verse(lookup, false).unwrap();
+    ///
+    /// // print the verse text
+    /// println!("John 3:16: {}", verse);
+    /// ```
+    pub fn get_verse(&self, lookup: BibleLookup, use_superscripts: bool) -> Result<String, BibleLibError> {
         // multiple verse lookup
         if let Some(thru_verse) = lookup.thru_verse {
             let mut verse_text = String::new();
@@ -333,8 +421,12 @@ impl Bible {
                 let Some(text) = verses.get(&verse) else {
                     return Err(BibleLibError::VerseNotFound);
                 };
-                
-                verse_text.push_str(&format!("{}{} ", Self::replace_superscript(verse.to_string()), text));
+
+                if use_superscripts {
+                    verse_text.push_str(&format!("{}{} ", Self::replace_superscript(verse.to_string()), text));
+                } else {
+                    verse_text.push_str(text);
+                }
             }
             return Ok(verse_text.trim().to_string());
         }
@@ -349,12 +441,30 @@ impl Bible {
         let Some(text) = verses.get(&lookup.verse) else {
             return Err(BibleLibError::VerseNotFound);
         };
-        Ok(text.clone())
+
+        if use_superscripts {
+            Ok(format!("{}{}", Self::replace_superscript(lookup.verse.to_string()), text))
+        } else {
+            Ok(text.to_string())
+        }
     }
 
-    /// Get the text of an entire chapter
+    /// Get the text of an entire chapter as a string
+    /// `use_superscripts` adds superscript verse numbers for better readability
     /// Returns an error if the chapter is not found
-    pub fn get_chapter(&self, book: &str, chapter: u32) -> Result<String, BibleLibError> {
+    /// # Example
+    /// ```
+    /// use bible_lib::{Bible, BibleLookup, Translation};
+    ///
+    /// // get the bible translation
+    /// let bible = Bible::new(Translation::EnglishedRevised).unwrap();
+    /// // get the text of Isaiah chapter 53
+    /// let chapter_text = bible.get_chapter("Isaiah", 53, true).unwrap();
+    ///
+    /// // print the chapter text
+    /// println!("Isaiah 53: {}", chapter_text);
+    /// ```
+    pub fn get_chapter(&self, book: &str, chapter: u32, use_superscripts: bool) -> Result<String, BibleLibError> {
         let mut chapter_text = String::new();
         // sort the verses by verse number
         let Some(chapters) = self.verses.get(book) else {
@@ -367,42 +477,45 @@ impl Bible {
         verses.sort_by(|a, b| a.0.cmp(b.0));
         for (verse, text) in verses {
             let verse_designation = Self::replace_superscript(verse.to_string());
-            chapter_text.push_str(&format!("{}{} ", verse_designation, text));
+            if use_superscripts {
+                chapter_text.push_str(&format!("{}{} ", verse_designation, text));
+            } else {
+                chapter_text.push_str(&format!("{} ", text));
+            }
         }
         Ok(chapter_text)
     }
 
-    /// Get the text of an entire book
-    /// Returns an error if the book is not found
-    /// Note: this can be a very large string and requires sorting of chapters and verses
-    /// Use with caution
-    pub fn get_book(&self, book: &str) -> Result<String, BibleLibError> {
-        let mut book_text = String::new();
-        // sort the chapters by chapter number
-        let Some(chapters) = self.verses.get(book) else {
-            return Err(BibleLibError::BookNotFound);
-        };
-        let mut chapters = chapters.iter().collect::<Vec<(&u32, &HashMap<u32, String>)>>();
-        chapters.sort_by(|a, b| a.0.cmp(b.0));
-        for (_chapter, verses) in chapters {
-            // sort the verses by verse number
-            let mut verses = verses.iter().collect::<Vec<(&u32, &String)>>();
-            verses.sort_by(|a, b| a.0.cmp(b.0));
-            for (verse, text) in verses {
-                let verse_designation = Self::replace_superscript(verse.to_string());
-                book_text.push_str(&format!("{}{} ", verse_designation, text));
-            }
-            book_text.push_str("\n\n");
-        }
-        Ok(book_text)
-    }
-
     /// Get a list of all books in the Bible
+    /// # Example
+    /// ```
+    /// use bible_lib::{Bible, Translation};
+    ///
+    /// // get the bible translation
+    /// let bible = Bible::new(Translation::default()).unwrap();
+    ///
+    /// // get the list of books
+    /// let books = bible.get_books();
+    /// // print the list of books
+    /// println!("Books in the Bible: {:?}", books);
+    /// ```
     pub fn get_books(&self) -> Vec<String> {
         self.verses.keys().map(|s| s.to_string()).collect()
     }
 
     /// Get a list of all chapters in a book
+    /// # Example
+    /// ```
+    /// use bible_lib::{Bible, Translation};
+    ///
+    /// // get the bible translation
+    /// let bible = Bible::new(Translation::default()).unwrap();
+    ///
+    /// // get the list of chapters in Revelation
+    /// let chapters = bible.get_chapters("Revelation").unwrap();
+    /// // print the list of chapters
+    /// println!("Chapters in Revelation: {:?}", chapters);
+    /// ```
     pub fn get_chapters(&self, book: &str) -> Result<Vec<u32>, BibleLibError> {
         if let Some(chapters) = self.verses.get(book).map(|chapters| chapters.keys().map(|c| *c).collect()) {
             Ok(chapters)
@@ -412,6 +525,18 @@ impl Bible {
     }
 
     /// Get a list of all verses in a chapter of a book
+    /// # Example
+    /// ```
+    /// use bible_lib::{Bible, Translation};
+    ///
+    /// // get the bible translation
+    /// let bible = Bible::new(Translation::default()).unwrap();
+    ///
+    /// // get the list of verses in John chapter 3
+    /// let verses = bible.get_verses("John", 3).unwrap();
+    /// // print the list of verses
+    /// println!("Verses in John 3: {:?}", verses);
+    /// ```
     pub fn get_verses(&self, book: &str, chapter: u32) -> Result<Vec<u32>, BibleLibError> {
         if let Some(verses) = self.verses.get(book)
             .and_then(|chapters| chapters.get(&chapter))
@@ -437,6 +562,21 @@ impl Bible {
     }
 
     /// Get a random verse from the Bible
+    /// Requires the `random` feature to be enabled
+    /// # Example
+    /// ```
+    /// use bible_lib::{Bible, Translation};
+    ///
+    /// // get the bible translation
+    /// let bible = Bible::new(Translation::default()).unwrap();
+    ///
+    /// // get a random verse
+    /// let random_verse = bible.random_verse();
+    /// // get the verse text
+    /// let verse_text = bible.get_verse(random_verse.clone(), false).unwrap();
+    /// // print the random verse
+    /// println!("Random Verse: {} - {}", random_verse, verse_text);
+    /// ```
     #[cfg(feature = "random")]
     pub fn random_verse(&self) -> BibleLookup {
         use rand::seq::IteratorRandom;
