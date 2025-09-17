@@ -1,0 +1,27 @@
+[package]
+name = "bible-lib"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+regex = { version = "*", optional = true }
+rand = { version = "*", optional = true }
+
+[features]
+default = ["akjv", "asv", "erv", "kjv", "random"]
+# enable detecting bible verses in strings with regex
+detection = ["regex"] # disabled by default
+# enable random verse selection
+random = ["rand"] # enabled by default
+
+# BIBLE TRANSLATIONS
+# Each translation can be enabled/disabled to reduce binary size / memory footprint
+
+# American King James Version
+akjv = [] # enabled by default
+# American Standard Version
+asv = [] # enabled by default
+# English Revised Version
+erv = [] # enabled by default
+# King James Version
+kjv = [] # enabled by default
