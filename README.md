@@ -20,6 +20,11 @@ A simple Rust crate for accessing Bible texts.
 - **random** random verse selection (enabled by default)
 - **detection** detect bible verses in a string (disabled by default)
 
+## Future Plans
+- Add more bible translations
+- Add support for reverse lookup (search for a phrase and get the verse(s) containing it)
+- Add support for different output formats (e.g. JSON, XML) (instead of just plain text)
+
 ## Usage
 Add this to your `Cargo.toml`:
 ```toml
