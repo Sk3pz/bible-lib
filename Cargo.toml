@@ -1,6 +1,6 @@
 [package]
 name = "bible-lib"
-version = "1.1.0"
+version = "1.1.1"
 edition = "2024"
 authors = ["Eric <skepz.dev@gmail.com>"]
 description = "A library for working with Bible verses in Rust."
