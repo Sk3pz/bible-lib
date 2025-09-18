@@ -1,6 +1,6 @@
 [package]
 name = "bible-lib"
-version = "1.0.1"
+version = "1.1.0"
 edition = "2024"
 authors = ["Eric <skepz.dev@gmail.com>"]
 description = "A library for working with Bible verses in Rust."
@@ -9,6 +9,13 @@ keywords = ["bible", "verses", "religion", "christianity", "scripture"]
 categories = ["value-formatting"]
 repository = "https://github.com/sk3pz/bible-lib"
 documentation = "https://docs.rs/bible-lib/latest/bible_lib/index.html"
+include = [
+    "src/**",
+    "bible_translations/*.json",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE",
+]
 
 [dependencies]
 regex = { version = "1.11.2", optional = true }
