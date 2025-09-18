@@ -260,8 +260,23 @@ impl BibleLookup {
         verses
     }
 
-    #[doc(hidden)]
-    fn capitalize_book(name: &String) -> String {
+    /// Capitalize the first letter of each word in the book name
+    /// Handles cases like `1 samuel` and `song of solomon`
+    /// This is used because book names are stored in lowercase for easier lookup
+    /// # Example
+    /// ```
+    /// use bible_lib::BibleLookup;
+    /// 
+    /// // capitalize book names
+    /// let book1 = BibleLookup::capitalize_book(&"john".to_string());
+    /// let book2 = BibleLookup::capitalize_book(&"1 samuel".to_string());
+    /// 
+    /// // print the capitalized book names
+    /// println!("Capitalized Book 1: {}", book1); // John
+    /// println!("Capitalized Book 2: {}", book2); // 1 Samuel
+    /// 
+    /// ```
+    pub fn capitalize_book(name: &String) -> String {
         // capitalize the first letter of each word in the book name
         // Split the input string by whitespace into words
         name.split_whitespace()
