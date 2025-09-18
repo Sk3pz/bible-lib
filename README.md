@@ -29,7 +29,7 @@ A simple Rust crate for accessing Bible texts.
 Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
-bible_lib = "0.1"
+bible_lib = "1.0.0"
 ```
 then import the crate and use it in your code:
 ```rust
