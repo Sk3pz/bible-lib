@@ -25,16 +25,10 @@ A simple Rust crate for accessing Bible texts.
 - Add support for reverse lookup (search for a phrase and get the verse(s) containing it)
 - Add support for different output formats (e.g. JSON, XML) (instead of just plain text)
 
-## Usage
-Add this to your `Cargo.toml`:
-```toml
-[dependencies]
-bible_lib = "1.0.0"
-```
-then import the crate and use it in your code:
-```rust
-use bible_lib::*;
-```
+## Custom Translations
+Each verse must be layed out as its own line as follows:  
+`Book Chapter#:Verse# Text`  
+see examples [here](./bible_translations)
 
 ## Examples
 
