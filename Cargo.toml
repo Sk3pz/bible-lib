@@ -11,7 +11,7 @@ repository = "https://github.com/sk3pz/bible-lib"
 documentation = "https://docs.rs/bible-lib/latest/bible_lib/index.html"
 include = [
     "src/**",
-    "bible_translations/*.json",
+    "bible_translations/*.txt",
     "Cargo.toml",
     "README.md",
     "LICENSE",
