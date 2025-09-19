@@ -28,7 +28,7 @@ A simple Rust crate for accessing Bible texts.
 ## Custom Translations
 Each verse must be layed out as its own line as follows:  
 `Book Chapter#:Verse# Text`  
-see examples [here](./bible_translations)
+see examples [here](./src/bible_translations)
 
 ## Examples
 
