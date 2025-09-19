@@ -20,13 +20,13 @@ use crate::error::BibleLibError;
 pub mod error;
 
 #[cfg(feature = "akjv")]
-const AKJV: &str = include_str!("bible_translations\\akjv.txt");
+const AKJV: &str = include_str!("bible_translations/akjv.txt");
 #[cfg(feature = "asv")]
-const ASV: &str = include_str!("bible_translations\\asv.txt");
+const ASV: &str = include_str!("bible_translations/asv.txt");
 #[cfg(feature = "erv")]
-const ERV: &str = include_str!("bible_translations\\erv.txt");
+const ERV: &str = include_str!("bible_translations/erv.txt");
 #[cfg(feature = "kjv")]
-const KJV: &str = include_str!("bible_translations\\kjv.txt");
+const KJV: &str = include_str!("bible_translations/kjv.txt");
 
 /// Different Bible Translations
 /// provided by https://openbible.com/
