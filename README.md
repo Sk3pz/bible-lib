@@ -44,7 +44,7 @@ let bible = Bible::new(Translation::AmericanKingJames);
 let requested_verse: String = bible.get_verse("John", 3, 16, false).unwrap();
 
 // print the verse text
-println!("John 3:16: {}", requested_verse.text);
+println!("John 3:16: {}", requested_verse);
 ```
 Get a range of verses:
 ```rust
