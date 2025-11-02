@@ -2,6 +2,7 @@ use std::fmt::{Display, Formatter};
 
 
 /// Errors that can occur in the Bible Lib
+#[derive(Debug)]
 pub enum BibleLibError {
     /// The specified custom translation file is invalid or does not exist.
     InvalidCustomTranslationFile,
