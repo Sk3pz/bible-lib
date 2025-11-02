@@ -518,6 +518,47 @@ impl Bible {
         self.verses.keys().map(|s| s.to_string()).collect()
     }
 
+    /// Get a list of all books in the Bible, sorted in canonical order
+    /// # Example
+    /// ```
+    /// use bible_lib::{Bible, Translation};
+    ///
+    /// // get the bible translation
+    /// let bible = Bible::new(Translation::default()).unwrap();
+    ///
+    /// // get the list of books
+    /// let books = bible.get_sorted_books();
+    /// // print the list of books
+    /// println!("Books in the Bible: {:?}", books);
+    /// ```
+    pub fn get_sorted_books(&self) -> Vec<String> {
+        let mut books = self.get_books();
+        let canonical_order = vec![
+            "genesis", "exodus", "leviticus", "numbers", "deuteronomy",
+            "joshua", "judges", "ruth", "1 samuel", "2 samuel",
+            "1 kings", "2 kings", "1 chronicles", "2 chronicles",
+            "ezra", "nehemiah", "esther", "job", "psalms",
+            "proverbs", "ecclesiastes", "song of solomon",
+            "isaiah", "jeremiah", "lamentations", "ezekiel",
+            "daniel", "hosea", "joel", "amos", "obadiah",
+            "jonah", "micah", "nahum", "habakkuk", "zephaniah",
+            "haggai", "zechariah", "malachi", "matthew",
+            "mark",  "luke", "john", "acts", "romans",
+            "1 corinthians", "2 corinthians",  "galatians",
+            "ephesians",  "philippians",  "colossians",
+            "1 thessalonians",  "2 thessalonians",
+            "1 timothy",  "2 timothy",  "titus",
+            "philemon",  "hebrews",  "james",
+            "1 peter",  "2 peter",  "1 john",
+            "2 john",  "3 john",  "jude",
+            "revelation"
+        ];
+        books.sort_by_key(|book| {
+            canonical_order.iter().position(|&b| b == book.as_str()).unwrap_or(usize::MAX)
+        });
+        books
+    }
+
     /// Get a list of all chapters in a book
     /// # Example
     /// ```
@@ -573,6 +614,19 @@ impl Bible {
             }
         } else {
             Err(BibleLibError::ChapterNotFound)
+        }
+    }
+
+    /// Get the maximum chapter number in a chapter of a book
+    pub fn get_max_chapter(&self, book: &str) -> Result<u32, BibleLibError> {
+        if let Some(chapters) = self.verses.get(book) {
+            if let Some(max_chapter) = chapters.keys().max() {
+                Ok(*max_chapter)
+            } else {
+                Err(BibleLibError::BookNotFound)
+            }
+        } else {
+            Err(BibleLibError::BookNotFound)
         }
     }
 
