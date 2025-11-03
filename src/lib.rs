@@ -537,7 +537,7 @@ impl Bible {
             "genesis", "exodus", "leviticus", "numbers", "deuteronomy",
             "joshua", "judges", "ruth", "1 samuel", "2 samuel",
             "1 kings", "2 kings", "1 chronicles", "2 chronicles",
-            "ezra", "nehemiah", "esther", "job", "psalms",
+            "ezra", "nehemiah", "esther", "job", "psalms", "psalm", // double entry for psalms because some translations use singular
             "proverbs", "ecclesiastes", "song of solomon",
             "isaiah", "jeremiah", "lamentations", "ezekiel",
             "daniel", "hosea", "joel", "amos", "obadiah",
