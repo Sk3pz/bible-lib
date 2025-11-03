@@ -6,7 +6,7 @@ A simple Rust crate for accessing Bible texts.
 - Included bible translations (can each be enabled / disabled via [Cargo Features]):
   - American King James Version (AKJV)
   - American Standard Version (ASV)
-  - English Standard Version (ESV)
+  - English Revised Version (ERV)
   - King James Version (KJV)
 - Custom bible translations (see [Custom Translations])
 - Random verse selection (can be disabled via [Cargo Features])
@@ -15,7 +15,7 @@ A simple Rust crate for accessing Bible texts.
 ## Cargo Features
 - **akjv** American King James Version (enabled by default)
 - **asv** American Standard Version (enabled by default)
-- **esv** English Standard Version (enabled by default)
+- **erv** English Revised Version (enabled by default)
 - **kjv** King James Version (enabled by default)
 - **random** random verse selection (enabled by default)
 - **detection** detect bible verses in a string (disabled by default)
@@ -26,8 +26,8 @@ A simple Rust crate for accessing Bible texts.
 - Add support for different output formats (e.g. JSON, XML) (instead of just plain text)
 
 ## Custom Translations
-Each verse must be layed out as its own line as follows:  
-`Book Chapter#:Verse# Text`  
+Each verse must be layed out as its own line as follows:
+`Book Chapter#:Verse# Text`
 see examples [here](./src/bible_translations)
 
 ## Examples
