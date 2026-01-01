@@ -30,7 +30,6 @@ const KJV: &str = include_str!("bible_translations/kjv.txt");
 
 /// Different Bible Translations
 /// provided by https://openbible.com/
-/// https://openbible.com/texts.htm
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Translation {
     /// American King James Version
